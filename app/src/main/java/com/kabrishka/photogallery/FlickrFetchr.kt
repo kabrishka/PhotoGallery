@@ -17,6 +17,7 @@ private const val TAG = "FlickrFetchr"
 class FlickrFetchr {
 
     private val flickrApi: FlickrApi
+    private lateinit var flickrRequest: Call<FlickrResponse>
 
     init {
         val retrofit = Retrofit.Builder()
@@ -29,7 +30,7 @@ class FlickrFetchr {
 
     fun fetchPhotos(): LiveData<List<GalleryItem>> {
         val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
-        val flickrRequest: Call<FlickrResponse> = flickrApi.fetchPhotos()
+        flickrRequest = flickrApi.fetchPhotos()
 
         flickrRequest.enqueue(object : Callback<FlickrResponse> {
             override fun onResponse(
@@ -52,5 +53,12 @@ class FlickrFetchr {
         })
 
         return responseLiveData
+    }
+
+    fun cancelRequestInFlight() {
+        if (::flickrRequest.isInitialized) {
+            Log.d(TAG, "Request cancel")
+            flickrRequest.cancel()
+        }
     }
 }
