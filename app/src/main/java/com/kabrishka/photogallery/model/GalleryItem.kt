@@ -1,4 +1,4 @@
-package com.kabrishka.photogallery
+package com.kabrishka.photogallery.model
 
 import com.google.gson.annotations.SerializedName
 
