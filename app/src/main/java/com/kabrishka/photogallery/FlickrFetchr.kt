@@ -8,8 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.kabrishka.photogallery.api.FlickrApi
 import com.kabrishka.photogallery.api.FlickrResponse
+import com.kabrishka.photogallery.api.PhotoInterceptor
 import com.kabrishka.photogallery.api.PhotoResponse
 import com.kabrishka.photogallery.model.GalleryItem
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,17 +27,29 @@ class FlickrFetchr {
     private lateinit var flickrRequest: Call<FlickrResponse>
 
     init {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(PhotoInterceptor())
+            .build()
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.flickr.com/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
             .build()
 
         flickrApi = retrofit.create(FlickrApi::class.java)
     }
 
     fun fetchPhotos(): LiveData<List<GalleryItem>> {
+        return fetchPhotoMetadata(flickrApi.fetchPhotos())
+    }
+
+    fun searchPhotos(query: String): LiveData<List<GalleryItem>>  {
+        return fetchPhotoMetadata(flickrApi.searchPhoto(query))
+    }
+
+    private fun fetchPhotoMetadata(flickrRequest: Call<FlickrResponse>): LiveData<List<GalleryItem>> {
         val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
-        flickrRequest = flickrApi.fetchPhotos()
 
         flickrRequest.enqueue(object : Callback<FlickrResponse> {
             override fun onResponse(
