@@ -1,4 +1,4 @@
-package com.kabrishka.photogallery
+package com.kabrishka.photogallery.presentation
 
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -18,10 +18,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.kabrishka.photogallery.model.GalleryItem
+import com.kabrishka.photogallery.R
+import com.kabrishka.photogallery.data.ThumbnailDownloader
+import com.kabrishka.photogallery.domain.GalleryItem
 
 private const val TAG = "PhotoGalleryFragment"
-
 class PhotoGalleryFragment : Fragment() {
 
     private lateinit var photoGalleryViewModel: PhotoGalleryViewModel

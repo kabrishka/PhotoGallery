@@ -1,10 +1,9 @@
-package com.kabrishka.photogallery
+package com.kabrishka.photogallery.data
 
 import android.content.Context
 import android.preference.PreferenceManager
 
 private const val PREF_SEARCH_QUERY = "searchQuery"
-
 object QueryPreferences {
 
     fun getStoreQuery(context: Context): String {

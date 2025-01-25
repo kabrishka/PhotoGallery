@@ -15,7 +15,7 @@
         android:theme="@style/Theme.PhotoGallery"
         tools:targetApi="31" >
         <activity
-            android:name=".PhotoGalleryActivity"
+            android:name=".presentation.PhotoGalleryActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

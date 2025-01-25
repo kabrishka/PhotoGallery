@@ -1,4 +1,4 @@
-package com.kabrishka.photogallery
+package com.kabrishka.photogallery.data
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,7 +10,7 @@ import com.kabrishka.photogallery.api.FlickrApi
 import com.kabrishka.photogallery.api.FlickrResponse
 import com.kabrishka.photogallery.api.PhotoInterceptor
 import com.kabrishka.photogallery.api.PhotoResponse
-import com.kabrishka.photogallery.model.GalleryItem
+import com.kabrishka.photogallery.domain.GalleryItem
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -44,7 +44,7 @@ class FlickrFetchr {
         return fetchPhotoMetadata(flickrApi.fetchPhotos())
     }
 
-    fun searchPhotos(query: String): LiveData<List<GalleryItem>>  {
+    fun searchPhotos(query: String): LiveData<List<GalleryItem>> {
         return fetchPhotoMetadata(flickrApi.searchPhoto(query))
     }
 

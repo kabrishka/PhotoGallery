@@ -1,11 +1,13 @@
-package com.kabrishka.photogallery
+package com.kabrishka.photogallery.presentation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
-import com.kabrishka.photogallery.model.GalleryItem
+import com.kabrishka.photogallery.data.FlickrFetchr
+import com.kabrishka.photogallery.data.QueryPreferences
+import com.kabrishka.photogallery.domain.GalleryItem
 
 class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app) {
 
