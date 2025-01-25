@@ -1,5 +1,7 @@
 package com.kabrishka.photogallery.presentation
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +26,12 @@ class PhotoGalleryActivity : AppCompatActivity() {
                 .beginTransaction()
                 .add(R.id.fragmentContainer, PhotoGalleryFragment.newInstance())
                 .commit();
+        }
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, PhotoGalleryActivity::class.java)
         }
     }
 }

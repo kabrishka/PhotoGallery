@@ -18,11 +18,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.kabrishka.photogallery.R
+import com.kabrishka.photogallery.data.PollWorker
+import com.kabrishka.photogallery.data.QueryPreferences
 import com.kabrishka.photogallery.data.ThumbnailDownloader
 import com.kabrishka.photogallery.domain.GalleryItem
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "PhotoGalleryFragment"
+private const val POLL_WORK = "POLL_WORK"
+
 class PhotoGalleryFragment : Fragment() {
 
     private lateinit var photoGalleryViewModel: PhotoGalleryViewModel
@@ -74,35 +84,78 @@ class PhotoGalleryFragment : Fragment() {
 
     private fun setupToolbar(view: View) {
         with(view.findViewById<Toolbar>(R.id.toolbar)) {
+            menu.clear()
             inflateMenu(R.menu.fragment_photo_gallery)
+            setupSearchItem()
+            setupClearItem()
+            setupToggleItem()
+        }
+    }
 
-            val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
-            val searchView = searchItem.actionView as SearchView
-            searchView.apply {
-                setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        Log.d(TAG, "QueryTextSubmit: $query")
-                        query?.let {
-                            photoGalleryViewModel.fetchPhotos(it)
-                        }
-                        return true
+    private fun Toolbar.setupSearchItem() {
+        val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
+        val searchView = searchItem.actionView as SearchView
+        searchView.apply {
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    Log.d(TAG, "QueryTextSubmit: $query")
+                    query?.let {
+                        photoGalleryViewModel.fetchPhotos(it)
                     }
-
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        Log.d(TAG, "QueryTextChange: $newText")
-                        return false
-                    }
-
-                })
-
-                setOnSearchClickListener {
-                    searchView.setQuery(photoGalleryViewModel.searchTerm, false)
+                    return true
                 }
-            }
 
-            val clearItem: MenuItem = menu.findItem(R.id.menu_item_clear)
-            clearItem.setOnMenuItemClickListener {
-                photoGalleryViewModel.fetchPhotos("")
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    Log.d(TAG, "QueryTextChange: $newText")
+                    return false
+                }
+
+            })
+
+            setOnSearchClickListener {
+                searchView.setQuery(photoGalleryViewModel.searchTerm, false)
+            }
+        }
+    }
+
+    private fun Toolbar.setupClearItem() {
+        val clearItem: MenuItem = menu.findItem(R.id.menu_item_clear)
+        clearItem.setOnMenuItemClickListener {
+            photoGalleryViewModel.fetchPhotos("")
+            true
+        }
+    }
+
+    private fun Toolbar.setupToggleItem() {
+        val toggleItem = menu.findItem(R.id.menu_item_toggle_polling)
+        val isPolling = QueryPreferences.isPooling(requireContext())
+        val toggleItemTitle = if (isPolling) {
+            R.string.stop_polling
+        } else {
+            R.string.start_polling
+        }
+        toggleItem.apply {
+            setTitle(toggleItemTitle)
+            setOnMenuItemClickListener {
+                if (isPolling) {
+                    WorkManager.getInstance(requireContext()).cancelUniqueWork(POLL_WORK)
+                    QueryPreferences.setPooling(requireContext(), false)
+                } else {
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.UNMETERED)
+                        .build()
+                    val periodicRequest = PeriodicWorkRequest
+                        .Builder(PollWorker::class.java, 15, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .build()
+                    WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                        POLL_WORK,
+                        ExistingPeriodicWorkPolicy.KEEP,
+                        periodicRequest
+                    )
+                    QueryPreferences.setPooling(requireContext(), true)
+                }
+                setupToggleItem() // invalidate
                 true
             }
         }

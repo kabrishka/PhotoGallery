@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.converter.scalars)
     implementation(libs.gson)
     implementation(libs.converter.gson)
-    implementation(libs.work.runtime)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
